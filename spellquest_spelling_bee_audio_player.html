@@ -7,21 +7,21 @@
   <link rel="icon" type="image/jpeg" href="App logo(web).jpg" />
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Import Map to resolve Framer React & JSX dependencies -->
-  <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@18",
-        "react-dom": "https://esm.sh/react-dom@18",
-        "react/jsx-runtime": "https://esm.sh/react@18/jsx-runtime",
-        "framer-motion": "https://esm.sh/framer-motion@10",
-        "framer": "https://esm.sh/framer-motion@10"
-      }
-    }
-  </script>
+  <!-- Framer Font & Animation Assets -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/rolldown-runtime.Dh6celcD.mjs">
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/react.D20wc1Tc.mjs">
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/framer.CIx-Wfsa.mjs">
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/motion.DQ9lNKau.mjs">
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/CK4j4Yo2JMYXfdT3IvE2-C47C419yMvyuG2cWGVUVDw.CZ-XZc_P.mjs">
+  <link rel="modulepreload" fetchpriority="low" href="https://framerusercontent.com/sites/3SvYEg4FWUFzoAexeqShua/shared-lib.BCBdNBmS.mjs">
+
+  <!-- Lottie Animation Web Component CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
     
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -29,6 +29,14 @@
       color: #f3f4f6;
       user-select: none;
       overflow-x: hidden;
+    }
+
+    .framer-scatter-title {
+      font-family: 'Jersey 10', cursive, sans-serif;
+      font-size: 64px;
+      line-height: 1.1;
+      color: #ffffff;
+      letter-spacing: 0.02em;
     }
 
     /* Ambient Glow Background */
@@ -260,26 +268,27 @@
   <!-- Framer Component: Interactive Scatter Grid Canvas (Stars + Scatter Word Nodes) -->
   <canvas id="scatterGridCanvas" class="fixed inset-0 pointer-events-none opacity-80 z-0"></canvas>
 
-  <!-- LANDING HERO SCREEN ("Spelling BEE") -->
-  <div id="landingHeroScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-neutral-950/95 backdrop-blur-2xl transition-all duration-500">
-    <div class="text-center max-w-lg space-y-6">
-      <div class="w-20 h-20 mx-auto rounded-3xl bg-neutral-900 border border-neutral-800 flex items-center justify-center shadow-2xl p-2 relative">
-        <img src="App logo(web).jpg" alt="MORROW Logo" class="app-logo w-full h-full object-cover rounded-2xl" onerror="this.style.display='none'; document.getElementById('heroLogoFallback').style.display='block';">
-        <svg id="heroLogoFallback" viewBox="0 0 100 100" class="w-full h-full" style="display:none"><circle cx="50" cy="40" r="30" fill="none" stroke="#ffffff" stroke-width="6"/><path d="M35 45 C 40 25, 60 25, 65 45 C 70 65, 30 65, 35 85" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/></svg>
+  <!-- Landing Screen Splash & Ambient Video Background Layer -->
+  <div id="landingScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#08080a] p-6 transition-opacity duration-700 overflow-hidden">
+    <!-- Ambient Video Background Behind Landing Page with Slight Blur -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-35 filter blur-[6px] scale-105">
+        <source src="bgvideo1.webm" type="video/webm">
+      </video>
+    </div>
+    
+    <div class="relative z-10 glass-card rounded-3xl p-8 max-w-md w-full text-center space-y-6 shadow-2xl border border-white/15">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 mx-auto flex items-center justify-center shadow-lg shadow-orange-600/30 p-1">
+        <img src="App logo(web).jpg" alt="Logo" class="w-full h-full object-cover rounded-xl" onerror="this.style.display='none'">
       </div>
-
       <div class="space-y-2">
-        <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">Spelling BEE</h1>
-        <p class="text-xs sm:text-sm text-neutral-400 font-medium">Studio & Practice Environment • Powered by <strong class="text-white">MORROW</strong></p>
+        <h1 class="framer-scatter-title text-4xl font-bold text-white tracking-wide">SPELLING BEE</h1>
+        <p class="text-xs text-neutral-400 font-light">Studio, Practice & Interactive Audio Companion</p>
       </div>
-
-      <p class="text-xs text-neutral-500 max-w-xs mx-auto leading-relaxed">Master preliminaries, oral finals, and championship spelling words with audio listening, testing, and smart dictation.</p>
-
-      <div class="pt-4">
-        <button id="enterStudioBtn" class="liquid-glass-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm tracking-wide">
-          Enter Practice Studio &rarr;
-        </button>
-      </div>
+      <button id="enterAppBtn" class="w-full py-3.5 liquid-glass-btn text-white font-bold rounded-2xl text-sm shadow-xl hover:opacity-95 transition transform hover:scale-[1.02] active:scale-95">
+        Enter Studio & Practice
+      </button>
+      <p class="text-[10px] text-neutral-500">Created by Gethmina Halangoda &bull; Powered by MORROW</p>
     </div>
   </div>
 
@@ -614,13 +623,15 @@
       ...spellingLists.level3.words
     ]));
 
-    // LANDING HERO SCREEN TRIGGER
-    const landingHeroScreen = document.getElementById('landingHeroScreen');
-    const enterStudioBtn = document.getElementById('enterStudioBtn');
-    if (enterStudioBtn && landingHeroScreen) {
-      enterStudioBtn.addEventListener('click', () => {
-        landingHeroScreen.classList.add('opacity-0', 'pointer-events-none');
-        setTimeout(() => { landingHeroScreen.style.display = 'none'; }, 500);
+    // Landing Screen Entry Handler
+    const landingScreen = document.getElementById('landingScreen');
+    const enterAppBtn = document.getElementById('enterAppBtn');
+    if (enterAppBtn && landingScreen) {
+      enterAppBtn.addEventListener('click', () => {
+        landingScreen.style.opacity = '0';
+        setTimeout(() => {
+          landingScreen.style.display = 'none';
+        }, 700);
       });
     }
 
