@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Bee Studio & Practice</title>
+  <link rel="icon" type="image/jpeg" href="App logo(web).jpg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Import Map to resolve Framer React & JSX dependencies -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18",
+        "react-dom": "https://esm.sh/react-dom@18",
+        "react/jsx-runtime": "https://esm.sh/react@18/jsx-runtime",
+        "framer-motion": "https://esm.sh/framer-motion@10",
+        "framer": "https://esm.sh/framer-motion@10"
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #08080a;
+      color: #f3f4f6;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Glow Background */
+    .glow-bg {
+      background: radial-gradient(circle at 50% 45%, rgba(249, 115, 22, 0.12), rgba(220, 38, 38, 0.04), transparent 65%);
+    }
+
+    /* Sleek Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(10, 10, 14, 0.6);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      transition: background 0.2s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(249, 115, 22, 0.6);
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) rgba(10, 10, 14, 0.6);
+    }
+
+    /* Range Track Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: #f97316;
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.8);
+      cursor: pointer;
+      margin-top: -4px;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+    }
+
+    .vol-slider {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+    }
+    .vol-slider::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      background: #f97316;
+      box-shadow: 0 0 6px rgba(249, 115, 22, 0.8);
+      cursor: pointer;
+      margin-top: -3px;
+    }
+
+    /* Wave Container */
+    .wave-container {
+      position: relative;
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .wave-container canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .wave-container input[type="range"] {
+      position: absolute;
+      top: 0;
+      left: 10px;
+      width: calc(100% - 20px);
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    /* Framer Inspired: Glass Container */
+    .glass-card {
+      background: rgba(14, 14, 18, 0.82);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Framer Component: Liquid Glass Tabs Container */
+    .liquid-glass-tabs {
+      background: rgba(20, 20, 28, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.15), 0 12px 28px -6px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Framer Component: Liquid Glass Pill Buttons */
+    .liquid-glass-btn {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.95), rgba(220, 38, 38, 0.9));
+      box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.35), 0 10px 25px -4px rgba(249, 115, 22, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .liquid-glass-btn:hover {
+      transform: translateY(-1.5px);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 14px 30px -3px rgba(249, 115, 22, 0.65);
+    }
+
+    .liquid-glass-btn:active {
+      transform: translateY(0.5px);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.25), 0 6px 15px -3px rgba(249, 115, 22, 0.4);
+    }
+
+    /* Glass Modal */
+    .glass-modal {
+      background: rgba(12, 12, 16, 0.94);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+    }
+
+    .app-blur-target {
+      transition: filter 0.3s ease;
+    }
+    .app-blurred {
+      filter: blur(14px);
+      pointer-events: none;
+    }
+
+    /* Subtle Rainbow Focus Glow */
+    @keyframes slowSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .gemini-input-wrapper {
+      position: relative;
+      border-radius: 1.25rem;
+      padding: 1.5px;
+      background: rgba(255, 255, 255, 0.08);
+      transition: background 0.4s ease;
+      overflow: hidden;
+    }
+
+    .gemini-input-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(56, 189, 248, 0.8),  
+        rgba(168, 85, 247, 0.8), 
+        rgba(244, 63, 94, 0.8),   
+        rgba(251, 191, 36, 0.8), 
+        rgba(52, 211, 153, 0.8),  
+        rgba(56, 189, 248, 0.8)
+      );
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 0;
+      animation: slowSpin 16s linear infinite;
+      filter: blur(8px);
+    }
+
+    .gemini-input-wrapper:focus-within {
+      background: transparent;
+    }
+
+    .gemini-input-wrapper:focus-within::before {
+      opacity: 0.6;
+    }
+
+    .word-input {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      border: 1px solid transparent;
+      border-radius: 1.15rem;
+      background-color: #060609;
+      transition: border 0.3s ease;
+    }
+
+    .gemini-input-wrapper:focus-within .word-input {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 relative overflow-x-hidden">
+
+  <!-- Ambient Background Glow -->
+  <div id="ambientGlow" class="glow-bg fixed inset-0 pointer-events-none"></div>
+
+  <!-- Framer Component: Interactive Scatter Grid Canvas (Stars + Scatter Word Nodes) -->
+  <canvas id="scatterGridCanvas" class="fixed inset-0 pointer-events-none opacity-80 z-0"></canvas>
+
+  <!-- LANDING HERO SCREEN ("Spelling BEE") -->
+  <div id="landingHeroScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-neutral-950/95 backdrop-blur-2xl transition-all duration-500">
+    <div class="text-center max-w-lg space-y-6">
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-neutral-900 border border-neutral-800 flex items-center justify-center shadow-2xl p-2 relative">
+        <img src="App logo(web).jpg" alt="MORROW Logo" class="app-logo w-full h-full object-cover rounded-2xl" onerror="this.style.display='none'; document.getElementById('heroLogoFallback').style.display='block';">
+        <svg id="heroLogoFallback" viewBox="0 0 100 100" class="w-full h-full" style="display:none"><circle cx="50" cy="40" r="30" fill="none" stroke="#ffffff" stroke-width="6"/><path d="M35 45 C 40 25, 60 25, 65 45 C 70 65, 30 65, 35 85" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/></svg>
+      </div>
+
+      <div class="space-y-2">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">Spelling BEE</h1>
+        <p class="text-xs sm:text-sm text-neutral-400 font-medium">Studio & Practice Environment • Powered by <strong class="text-white">MORROW</strong></p>
+      </div>
+
+      <p class="text-xs text-neutral-500 max-w-xs mx-auto leading-relaxed">Master preliminaries, oral finals, and championship spelling words with audio listening, testing, and smart dictation.</p>
+
+      <div class="pt-4">
+        <button id="enterStudioBtn" class="liquid-glass-btn px-8 py-3.5 rounded-2xl text-white font-bold text-sm tracking-wide">
+          Enter Practice Studio &rarr;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Button -->
+  <button id="openSettingsBtn" class="fixed top-4 right-4 z-40 w-9 h-9 rounded-xl bg-neutral-900/90 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition shadow-lg backdrop-blur-md" title="Studio Settings">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+    </svg>
+  </button>
+
+  <!-- Header -->
+  <header class="w-full max-w-lg relative z-10 pt-4 pb-2 flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between app-blur-target" id="mainHeader">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center shadow-lg overflow-hidden p-0.5">
+        <img src="App logo(web).jpg" alt="MORROW Logo" class="app-logo w-full h-full object-cover rounded-lg" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+        <svg id="logoFallback" viewBox="0 0 100 100" class="w-full h-full" style="display:none"><circle cx="50" cy="40" r="30" fill="none" stroke="#ffffff" stroke-width="6"/><path d="M35 45 C 40 25, 60 25, 65 45 C 70 65, 30 65, 35 85" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1 class="text-xs font-bold tracking-widest text-white uppercase leading-tight">Spelling Bee</h1>
+        <p class="text-[9px] text-neutral-400 font-medium">Powered by MORROW</p>
+      </div>
+    </div>
+
+    <!-- Framer Component: Liquid Glass Navigation Tabs -->
+    <div class="liquid-glass-tabs flex space-x-1 p-1 rounded-2xl w-full sm:w-auto sm:flex-1 sm:max-w-[280px] justify-between">
+      <button id="modePlayerBtn" onclick="switchTab('player')" class="flex-1 py-1.5 text-[11px] font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white transition text-center whitespace-nowrap shadow-md">Audio Player</button>
+      <button id="modeTestBtn" onclick="switchTab('test')" class="flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-neutral-400 hover:text-white transition text-center whitespace-nowrap">Spell Tester</button>
+      <button id="modeDictationBtn" onclick="switchTab('dictation')" class="flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-neutral-400 hover:text-white transition text-center whitespace-nowrap">Dictation</button>
+    </div>
+  </header>
+
+  <!-- Workspace Container (Dynamic Auto Height) -->
+  <main class="w-full max-w-lg relative z-10 my-auto py-2 flex flex-col app-blur-target" id="mainWorkspace">
+
+    <!-- TAB 1: AUDIO PLAYER -->
+    <div id="toolPlayer" class="glass-card rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 w-full">
+      <div class="text-center py-1">
+        <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-600/20 mb-2">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <h2 id="trackTitle" class="text-xl font-bold text-white tracking-tight">Level 1</h2>
+        <p id="trackDetail" class="text-xs text-neutral-400 font-light mt-0.5">Written Preliminaries</p>
+      </div>
+
+      <!-- Wave Canvas Progress Bar -->
+      <div class="space-y-1">
+        <div class="wave-container">
+          <canvas id="waveCanvas"></canvas>
+          <input type="range" id="seekBar" min="0" max="100" value="0">
+        </div>
+        <div class="flex justify-between text-[10px] font-mono text-neutral-500 px-0.5">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-between py-1">
+        <div class="flex items-center space-x-2 w-20">
+          <button id="muteBtn" class="text-neutral-400 hover:text-orange-500 transition">
+            <svg id="volIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.535 6.464a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"></path>
+            </svg>
+          </button>
+          <input type="range" id="volBar" min="0" max="1" step="0.05" value="0.8" class="vol-slider w-14">
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <button id="prevBtn" class="text-neutral-400 hover:text-white transition p-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"></path></svg>
+          </button>
+          <button id="playBtn" class="w-12 h-12 rounded-full liquid-glass-btn text-white flex items-center justify-center shadow-lg hover:scale-105 transition transform active:scale-95">
+            <svg id="playIcon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+          </button>
+          <button id="nextBtn" class="text-neutral-400 hover:text-white transition p-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"></path></svg>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-1">
+          <button id="speedBtn" class="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-orange-400 transition">1.0x</button>
+          <button id="abLoopBtn" class="text-[10px] font-mono px-2 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-500 hover:text-orange-400 transition">A-B</button>
+        </div>
+      </div>
+
+      <!-- Track Items -->
+      <div class="pt-3 border-t border-neutral-800/60 space-y-1.5">
+        <div class="track-item flex items-center justify-between p-2.5 rounded-2xl bg-neutral-900/40 hover:bg-neutral-800/50 cursor-pointer transition border border-transparent hover:border-orange-500/20" data-index="0">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-orange-500">01</span>
+            <div>
+              <p class="text-xs font-semibold text-white">Level 1</p>
+              <p class="text-[10px] text-neutral-400">Written Preliminaries</p>
+            </div>
+          </div>
+          <span class="text-[10px] text-neutral-500 font-mono">Ready</span>
+        </div>
+
+        <div class="track-item flex items-center justify-between p-2.5 rounded-2xl bg-neutral-900/40 hover:bg-neutral-800/50 cursor-pointer transition border border-transparent hover:border-orange-500/20" data-index="1">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-orange-500">02</span>
+            <div>
+              <p class="text-xs font-semibold text-white">Level 2</p>
+              <p class="text-[10px] text-neutral-400">District Final Oral</p>
+            </div>
+          </div>
+          <span class="text-[10px] text-neutral-500 font-mono">Ready</span>
+        </div>
+
+        <div class="track-item flex items-center justify-between p-2.5 rounded-2xl bg-neutral-900/40 hover:bg-neutral-800/50 cursor-pointer transition border border-transparent hover:border-orange-500/20" data-index="2">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-orange-500">03</span>
+            <div>
+              <p class="text-xs font-semibold text-white">Level 3</p>
+              <p class="text-[10px] text-neutral-400">National Final & Meaning Round</p>
+            </div>
+          </div>
+          <span class="text-[10px] text-neutral-500 font-mono">Ready</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: SPELL TESTER -->
+    <div id="toolTest" class="hidden glass-card rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 w-full">
+      <div class="grid grid-cols-3 gap-2">
+        <button id="testLevel1Btn" class="py-2 px-1 text-xs font-bold rounded-xl bg-orange-600 text-white transition shadow-md">Level 1</button>
+        <button id="testLevel2Btn" class="py-2 px-1 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition">Level 2</button>
+        <button id="testLevel3Btn" class="py-2 px-1 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition">Level 3</button>
+      </div>
+
+      <div class="flex items-center justify-between bg-neutral-900/60 p-3 rounded-2xl border border-neutral-800">
+        <div>
+          <span class="text-[10px] uppercase font-mono text-neutral-500 tracking-wider">Category</span>
+          <p id="testCategoryTitle" class="text-xs font-bold text-orange-400">Written Prelims</p>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] uppercase font-mono text-neutral-500 tracking-wider">Progress Score</span>
+          <p id="testScore" class="text-xs font-bold text-emerald-400">0 / 0</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-center">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-neutral-400 tracking-wide uppercase">Spell Word #<span id="currentWordNum">1</span></span>
+          <button id="speakWordBtn" class="px-3 py-1 bg-orange-600/20 border border-orange-500/40 text-orange-400 hover:bg-orange-600/30 text-xs rounded-xl font-medium transition flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.535 6.464a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"></path></svg>
+            <span>Pronounce (Right Alt)</span>
+          </button>
+        </div>
+        
+        <div class="bg-neutral-950/80 border border-neutral-800 rounded-2xl p-5 relative overflow-hidden">
+          <p class="text-xs text-neutral-500 mb-1">Listen or type spelling for:</p>
+          <div class="flex items-center justify-center space-x-2">
+            <span class="text-lg font-bold text-white tracking-widest uppercase blur-sm hover:blur-none transition cursor-pointer select-none" id="hiddenWordHint" title="Hover to reveal hint">
+              ••••••••
+            </span>
+          </div>
+          <p class="text-[10px] text-neutral-600 mt-1">(Hover box to peek word if needed)</p>
+        </div>
+
+        <div class="gemini-input-wrapper">
+          <input type="text" id="wordInput" placeholder="Type correct spelling here..." autocomplete="off" spellcheck="false" 
+            class="word-input px-4 py-3 bg-neutral-950 text-white text-center font-bold text-lg transition placeholder-neutral-600">
+        </div>
+      </div>
+
+      <div id="feedbackBox" class="min-h-[36px] flex items-center justify-center p-1.5 rounded-xl text-center text-xs font-medium transition opacity-0"></div>
+
+      <div class="flex space-x-2">
+        <button id="submitWordBtn" class="flex-1 py-3 liquid-glass-btn text-white font-semibold rounded-xl text-xs shadow-lg hover:opacity-90 transition">
+          Check Spellings
+        </button>
+        <button id="skipWordBtn" class="px-5 py-3 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-xl text-xs hover:text-white transition">
+          Skip
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: DICTATION MODE -->
+    <div id="toolDictation" class="hidden glass-card rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 w-full">
+      <div class="text-center">
+        <h2 class="text-lg font-bold text-white tracking-tight">Dictation Mode</h2>
+        <p class="text-xs text-neutral-400 mt-0.5">Type text word-by-word into your list and evaluate corrections at the end</p>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono text-neutral-400">
+          <span>Entered Words: <strong id="dictationCount" class="text-orange-400">0</strong></span>
+          <button id="clearDictationBtn" class="text-neutral-500 hover:text-red-400 transition text-[10px]">Clear List</button>
+        </div>
+
+        <div class="gemini-input-wrapper">
+          <input type="text" id="dictationInput" placeholder="Type a single word & press Space/Enter..." autocomplete="off" spellcheck="false" 
+            class="word-input px-4 py-2.5 bg-neutral-950 text-white text-center font-semibold text-sm transition placeholder-neutral-600">
+        </div>
+      </div>
+
+      <div id="dictationChipContainer" class="min-h-[120px] max-h-[220px] overflow-y-auto bg-neutral-950/60 p-3 rounded-2xl border border-neutral-800/80 flex flex-wrap gap-1.5 items-start content-start">
+        <p id="dictationEmptyPlaceholder" class="text-xs text-neutral-600 text-center w-full my-auto py-8">Your entered word list will appear here...</p>
+      </div>
+
+      <div id="dictationReportBox" class="hidden bg-neutral-900/80 border border-neutral-800 p-3 rounded-2xl space-y-1">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-white">Dictation Analysis</span>
+          <span id="dictationAccuracy" class="font-bold text-emerald-400">100% Verified</span>
+        </div>
+        <p id="dictationReportDetails" class="text-[11px] text-neutral-400 leading-relaxed"></p>
+      </div>
+
+      <div class="flex space-x-2 pt-1">
+        <button id="submitDictationBtn" class="flex-1 py-3 liquid-glass-btn text-white font-semibold rounded-xl text-xs shadow-lg hover:opacity-90 transition flex items-center justify-center space-x-2">
+          <span>Check Spellings</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Clean Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-modal w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-5 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="settingsBox">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
+        <div>
+          <h2 class="text-sm font-bold text-white tracking-wide uppercase">Preferences & Audio Engine</h2>
+          <p class="text-[11px] text-neutral-400">Manage speech rate and audio engine options</p>
+        </div>
+        <button id="closeSettingsBtn" class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Audio Engine Settings</label>
+        <div class="bg-neutral-900/50 p-3.5 rounded-xl border border-neutral-800/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-white">Pronunciation Speech Rate</span>
+            <select id="ttsSpeedSelect" class="bg-neutral-950 border border-neutral-800 text-xs text-orange-400 px-2 py-1 rounded-lg outline-none font-mono">
+              <option value="0.7">0.7x (Slow)</option>
+              <option value="0.85" selected>0.85x (Normal)</option>
+              <option value="1.0">1.0x (Fast)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button id="saveCloseSettingsBtn" class="w-full py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold rounded-xl text-xs transition border border-neutral-700">
+          Save & Close Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-lg relative z-10 text-center pb-2 pt-3 app-blur-target" id="mainFooter">
+    <p class="text-[11px] font-medium text-neutral-400 tracking-tight">Created by <span class="text-orange-400 font-semibold">Gethmina Halangoda</span> &bull; <span class="font-mono text-neutral-400">gethminahalangoda@gmail.com</span></p>
+    <p class="text-[10px] text-neutral-500 font-medium mt-0.5">Powered by <strong class="text-white tracking-wider">MORROW</strong></p>
+  </footer>
+
+  <audio id="audioPlayer"></audio>
+
+  <script>
+    // ------------------------------------------------------------------
+    // GLOBAL DATA STRUCTURES & DATA POOLS (DECLARED FIRST)
+    // ------------------------------------------------------------------
+    const audio = document.getElementById('audioPlayer');
+    const toolPlayer = document.getElementById('toolPlayer');
+    const toolTest = document.getElementById('toolTest');
+    const toolDictation = document.getElementById('toolDictation');
+    
+    const modePlayerBtn = document.getElementById('modePlayerBtn');
+    const modeTestBtn = document.getElementById('modeTestBtn');
+    const modeDictationBtn = document.getElementById('modeDictationBtn');
+
+    const trackTitle = document.getElementById('trackTitle');
+    const trackDetail = document.getElementById('trackDetail');
+    const seekBar = document.getElementById('seekBar');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const speedBtn = document.getElementById('speedBtn');
+    const abLoopBtn = document.getElementById('abLoopBtn');
+    const volBar = document.getElementById('volBar');
+    const trackItems = document.querySelectorAll('.track-item');
+
+    const tracks = [
+      { title: "Level 1", detail: "Written Preliminaries", src: "LEVEL 1.mp3" },
+      { title: "Level 2", detail: "District Final Oral", src: "LEVEL 2.mp3" },
+      { title: "Level 3", detail: "National Final & Meaning Round", src: "LEVEL 3.mp3" }
+    ];
+
+    let currentIndex = 0;
+    let isPlaying = false;
+    const speeds = [0.5, 1.0, 1.25, 1.5, 2.0];
+    let speedIdx = 1;
+    let loopA = null;
+    let loopB = null;
+
+    // SPELLING TESTER OFFICIAL WORD LISTS
+    const spellingLists = {
+      level1: {
+        name: "Written Prelims (Easy)",
+        words: [
+          "absence", "accident", "address", "adopt", "adopted", "adventure", "alphabet", "amazing", "ancient", "angry", "apology", "apparent", "appearance", "arrangement", "arrival", "banana", "beautiful", "because", "birthday", "calendar", "camera", "captain", "capture", "celebrate", "century", "children", "chimpanzee", "chocolate", "circle", "climate", "collect", "comfortable", "community", "company", "competition", "complete", "computer", "concert", "corridor", "council", "creature", "curious", "daughter", "decided", "decoration", "delicious", "describe", "different", "difficult", "dinosaur", "disappear", "early", "education", "elephant", "energy", "environment", "especially", "everybody", "example", "excellent", "exercise", "experience", "favourite", "february", "forward", "friendship", "geography", "government", "grammar", "hospital", "important", "interest", "island", "journey", "library", "mathematics", "mountain", "november", "october", "particular", "perhaps", "popular", "potatoes", "promise", "question", "remember", "science", "special", "surprise", "tomorrow", "weather"
+        ].sort()
+      },
+      level2: {
+        name: "District Final Oral (Medium)",
+        words: [
+          "achievement", "addition", "antonym", "apologized", "astronomy", "attempt", "attention", "audience", "awkward", "carnivore", "compare", "compatible", "confidence", "coniferous", "consumer", "cooperation", "deciduous", "decay", "decompose", "diagram", "difference", "disease", "drought", "ecosystem", "embarrassed", "erosion", "eruption", "evidence", "frequency", "freshwater", "germs", "grassland", "habitat", "herbivore", "horizontal", "illustration", "interact", "intestine", "narrative", "omnivore", "oxygen", "pattern", "pollen", "population", "predator", "prey", "producer", "protection", "related", "saltwater", "sequence", "shelter", "stomach", "subtraction", "surface", "support", "synonym", "temperature", "tradition", "tropical", "vertical"
+        ].sort()
+      },
+      level3: {
+        name: "National Final & Meaning Round (Hard + 2025)",
+        words: [
+          "accommodation", "accompaniment", "amateur", "bureaucracy", "camaraderie", "cemetery", "commemorate", "connoisseur", "conscientious", "conscientiousness", "consensus", "definite", "embarrass", "embarrassment", "entrepreneur", "exhilaration", "fahrenheit", "fluorescent", "genealogy", "harass", "hemorrhage", "idiosyncrasy", "liaison", "millennium", "necessary", "noticeable", "occasion", "occurrence", "paraphernalia", "perseverance", "privilege", "pronunciation", "questionnaire", "restaurateur", "rhythm", "sacrilegious", "vacuum", "yacht"
+        ].sort()
+      }
+    };
+
+    // COMBINED WORD POOL FOR SCATTER GRID & DICTATION LOOKUP
+    const allFloatingWordsPool = Array.from(new Set([
+      ...spellingLists.level1.words,
+      ...spellingLists.level2.words,
+      ...spellingLists.level3.words
+    ]));
+
+    // LANDING HERO SCREEN TRIGGER
+    const landingHeroScreen = document.getElementById('landingHeroScreen');
+    const enterStudioBtn = document.getElementById('enterStudioBtn');
+    if (enterStudioBtn && landingHeroScreen) {
+      enterStudioBtn.addEventListener('click', () => {
+        landingHeroScreen.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => { landingHeroScreen.style.display = 'none'; }, 500);
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // FRAMER COMPONENT: SCATTER GRID CANVAS (SCATTERGRID - OFILQS)
+    // ------------------------------------------------------------------
+    const scatterCanvas = document.getElementById('scatterGridCanvas');
+    const sgCtx = scatterCanvas ? scatterCanvas.getContext('2d') : null;
+    let scatterNodes = [];
+    let scatterStars = [];
+
+    function initScatterGrid() {
+      if (!scatterCanvas) return;
+      scatterCanvas.width = window.innerWidth;
+      scatterCanvas.height = window.innerHeight;
+
+      scatterStars = [];
+      for (let i = 0; i < 50; i++) {
+        scatterStars.push({
+          x: Math.random() * scatterCanvas.width,
+          y: Math.random() * scatterCanvas.height,
+          r: Math.random() * 1.2 + 0.3,
+          alpha: Math.random() * 0.5 + 0.2,
+          vx: (Math.random() - 0.5) * 0.1,
+          vy: (Math.random() - 0.5) * 0.1
+        });
+      }
+
+      scatterNodes = [];
+      const totalScatterWords = 14;
+      for (let i = 0; i < totalScatterWords; i++) {
+        const randomWord = allFloatingWordsPool[Math.floor(Math.random() * allFloatingWordsPool.length)];
+        scatterNodes.push({
+          text: randomWord.toUpperCase(),
+          x: Math.random() * (scatterCanvas.width - 120) + 60,
+          y: Math.random() * (scatterCanvas.height - 120) + 60,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: (Math.random() - 0.5) * 0.2,
+          alpha: Math.random() * 0.12 + 0.04,
+          fontSize: Math.floor(Math.random() * 8 + 11)
+        });
+      }
+    }
+    initScatterGrid();
+    window.addEventListener('resize', initScatterGrid);
+
+    let isScatterActive = true;
+    function renderScatterGrid() {
+      if (!sgCtx || !scatterCanvas) return;
+      sgCtx.clearRect(0, 0, scatterCanvas.width, scatterCanvas.height);
+
+      // Render star dots
+      scatterStars.forEach(s => {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x < 0) s.x = scatterCanvas.width;
+        if (s.x > scatterCanvas.width) s.x = 0;
+        if (s.y < 0) s.y = scatterCanvas.height;
+        if (s.y > scatterCanvas.height) s.y = 0;
+
+        sgCtx.beginPath();
+        sgCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        sgCtx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+        sgCtx.fill();
+      });
+
+      // Render subtle text scatter nodes only on player tab
+      if (isScatterActive) {
+        scatterNodes.forEach(n => {
+          n.x += n.vx;
+          n.y += n.vy;
+
+          if (n.x < 40) { n.x = 40; n.vx *= -1; }
+          if (n.x > scatterCanvas.width - 40) { n.x = scatterCanvas.width - 40; n.vx *= -1; }
+          if (n.y < 40) { n.y = 40; n.vy *= -1; }
+          if (n.y > scatterCanvas.height - 40) { n.y = scatterCanvas.height - 40; n.vy *= -1; }
+
+          sgCtx.font = `600 ${n.fontSize}px "Plus Jakarta Sans", sans-serif`;
+          sgCtx.fillStyle = `rgba(215, 220, 230, ${n.alpha})`;
+          sgCtx.letterSpacing = '2px';
+          sgCtx.fillText(n.text, n.x, n.y);
+        });
+      }
+
+      requestAnimationFrame(renderScatterGrid);
+    }
+    if (sgCtx) renderScatterGrid();
+
+    // ------------------------------------------------------------------
+    // TAB SWITCHER WITH FRAMER SCATTER CONTROL
+    // ------------------------------------------------------------------
+    window.switchTab = function(target) {
+      if (toolPlayer) toolPlayer.classList.toggle('hidden', target !== 'player');
+      if (toolTest) toolTest.classList.toggle('hidden', target !== 'test');
+      if (toolDictation) toolDictation.classList.toggle('hidden', target !== 'dictation');
+
+      isScatterActive = (target === 'player');
+
+      if (modePlayerBtn) {
+        modePlayerBtn.className = target === 'player' 
+          ? 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white transition text-center whitespace-nowrap shadow-md'
+          : 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-neutral-400 hover:text-white transition text-center whitespace-nowrap';
+      }
+      if (modeTestBtn) {
+        modeTestBtn.className = target === 'test' 
+          ? 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white transition text-center whitespace-nowrap shadow-md'
+          : 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-neutral-400 hover:text-white transition text-center whitespace-nowrap';
+      }
+      if (modeDictationBtn) {
+        modeDictationBtn.className = target === 'dictation' 
+          ? 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white transition text-center whitespace-nowrap shadow-md'
+          : 'flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-neutral-400 hover:text-white transition text-center whitespace-nowrap';
+      }
+
+      if (target === 'test' && typeof pronounceCurrentWord === 'function') {
+        pronounceCurrentWord();
+      }
+    };
+
+    // ------------------------------------------------------------------
+    // AUDIO WAVEFORM CANVASES
+    // ------------------------------------------------------------------
+    const waveCanvas = document.getElementById('waveCanvas');
+    const wCtx = waveCanvas ? waveCanvas.getContext('2d') : null;
+    let waveAnimFrame = null;
+    const barHeights = Array.from({ length: 48 }, () => Math.random() * 0.7 + 0.3);
+
+    function drawWaveform() {
+      if (!waveCanvas || !wCtx) return;
+      const rect = waveCanvas.parentElement.getBoundingClientRect();
+      waveCanvas.width = rect.width;
+      waveCanvas.height = rect.height;
+
+      const width = waveCanvas.width;
+      const height = waveCanvas.height;
+      wCtx.clearRect(0, 0, width, height);
+
+      const numBars = barHeights.length;
+      const gap = 3;
+      const barWidth = (width - (numBars - 1) * gap) / numBars;
+      const progressRatio = audio && audio.duration ? (audio.currentTime / audio.duration) : 0;
+      const activeBars = Math.floor(progressRatio * numBars);
+
+      for (let i = 0; i < numBars; i++) {
+        let barH = barHeights[i] * (height * 0.75);
+        if (isPlaying) {
+          barH += Math.sin(Date.now() * 0.008 + i * 0.4) * (height * 0.2);
+        }
+        barH = Math.max(4, Math.min(height, barH));
+
+        const x = i * (barWidth + gap);
+        const y = (height - barH) / 2;
+
+        wCtx.fillStyle = i <= activeBars ? '#f97316' : 'rgba(255, 255, 255, 0.15)';
+        wCtx.beginPath();
+        wCtx.roundRect(x, y, barWidth, barH, 2);
+        wCtx.fill();
+      }
+
+      waveAnimFrame = requestAnimationFrame(drawWaveform);
+    }
+    drawWaveform();
+    window.addEventListener('resize', drawWaveform);
+
+    // ------------------------------------------------------------------
+    // DICTATION LOGIC
+    // ------------------------------------------------------------------
+    let dictationList = [];
+    const dictationInput = document.getElementById('dictationInput');
+    const dictationChipContainer = document.getElementById('dictationChipContainer');
+    const dictationCount = document.getElementById('dictationCount');
+    const dictationEmptyPlaceholder = document.getElementById('dictationEmptyPlaceholder');
+    const clearDictationBtn = document.getElementById('clearDictationBtn');
+    const submitDictationBtn = document.getElementById('submitDictationBtn');
+    const dictationReportBox = document.getElementById('dictationReportBox');
+    const dictationAccuracy = document.getElementById('dictationAccuracy');
+    const dictationReportDetails = document.getElementById('dictationReportDetails');
+
+    function getLevenshteinDistance(a, b) {
+      const matrix = [];
+      for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+      for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+          if (b.charAt(i - 1) === a.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j - 1] + 1,
+              matrix[i][j - 1] + 1,
+              matrix[i - 1][j] + 1
+            );
+          }
+        }
+      }
+      return matrix[b.length][a.length];
+    }
+
+    function findClosestWordSuggestion(word, pool) {
+      let closest = '';
+      let minDistance = Infinity;
+      const cleanWord = word.toLowerCase();
+
+      for (const target of pool) {
+        const cleanTarget = target.toLowerCase();
+        const dist = getLevenshteinDistance(cleanWord, cleanTarget);
+        if (dist < minDistance && dist <= (cleanWord.length > 5 ? 3 : 2)) {
+          minDistance = dist;
+          closest = target;
+        }
+      }
+      return closest;
+    }
+
+    function renderDictationList() {
+      if (!dictationChipContainer) return;
+      dictationChipContainer.innerHTML = '';
+
+      if (dictationList.length === 0) {
+        if (dictationEmptyPlaceholder) dictationChipContainer.appendChild(dictationEmptyPlaceholder);
+        if (dictationCount) dictationCount.textContent = '0';
+        if (dictationReportBox) dictationReportBox.classList.add('hidden');
+        return;
+      }
+
+      if (dictationCount) dictationCount.textContent = dictationList.length;
+
+      dictationList.forEach((wordObj, idx) => {
+        const chip = document.createElement('div');
+        let chipStyle = 'bg-neutral-900 border border-neutral-800 text-white';
+        let statusBadge = '';
+
+        if (wordObj.checked) {
+          if (wordObj.status === 'verified') {
+            chipStyle = 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
+            statusBadge = '<span class="text-[9px] bg-emerald-500/30 text-emerald-300 px-1.5 py-0.5 rounded ml-1 font-semibold">Correct</span>';
+          } else {
+            chipStyle = 'bg-red-500/20 border border-red-500/50 text-red-300';
+            const sugStr = wordObj.suggestion ? ` (Did you mean "${wordObj.suggestion}"?)` : '';
+            statusBadge = `<span class="text-[9px] bg-red-500/30 text-red-200 px-1.5 py-0.5 rounded ml-1 font-semibold">Incorrect${sugStr}</span>`;
+          }
+        }
+        
+        chip.className = `flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono transition ${chipStyle}`;
+        chip.innerHTML = `
+          <span>${idx + 1}. <strong>${wordObj.text}</strong></span>
+          ${statusBadge}
+          <button onclick="removeDictationWord(${idx})" class="text-neutral-400 hover:text-white text-xs ml-1.5">&times;</button>
+        `;
+        dictationChipContainer.appendChild(chip);
+      });
+    }
+
+    function addDictationWord(text) {
+      const clean = text.trim();
+      if (!clean) return;
+      dictationList.push({ text: clean, checked: false, status: 'unknown', suggestion: '' });
+      renderDictationList();
+      if (dictationInput) dictationInput.value = '';
+    }
+
+    window.removeDictationWord = function(idx) {
+      dictationList.splice(idx, 1);
+      renderDictationList();
+    };
+
+    if (dictationInput) {
+      dictationInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          addDictationWord(dictationInput.value);
+        }
+      });
+    }
+
+    if (clearDictationBtn) {
+      clearDictationBtn.addEventListener('click', () => {
+        dictationList = [];
+        renderDictationList();
+      });
+    }
+
+    if (submitDictationBtn) {
+      submitDictationBtn.addEventListener('click', () => {
+        if (dictationList.length === 0) return;
+
+        const databaseSet = new Set(allFloatingWordsPool.map(w => w.toLowerCase()));
+        let verifiedCount = 0;
+
+        dictationList.forEach(wObj => {
+          const clean = wObj.text.trim().toLowerCase();
+          wObj.checked = true;
+
+          if (databaseSet.has(clean)) {
+            wObj.status = 'verified';
+            wObj.suggestion = '';
+            verifiedCount++;
+          } else {
+            wObj.status = 'typo';
+            wObj.suggestion = findClosestWordSuggestion(clean, allFloatingWordsPool);
+          }
+        });
+
+        renderDictationList();
+
+        if (dictationReportBox && dictationAccuracy && dictationReportDetails) {
+          const accuracyPct = Math.round((verifiedCount / dictationList.length) * 100);
+          dictationAccuracy.textContent = `${accuracyPct}% Correct`;
+
+          if (verifiedCount === dictationList.length) {
+            dictationAccuracy.className = 'font-bold text-emerald-400';
+            dictationReportDetails.textContent = `All ${dictationList.length} word(s) perfectly matched your official word list!`;
+          } else {
+            dictationAccuracy.className = 'font-bold text-orange-400';
+            dictationReportDetails.textContent = `Found ${dictationList.length - verifiedCount} misspelling(s) not in your word list. Suggestions are shown above.`;
+          }
+          dictationReportBox.classList.remove('hidden');
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // AUDIO PLAYER LOGIC
+    // ------------------------------------------------------------------
+    function loadTrack(index) {
+      currentIndex = index;
+      const t = tracks[currentIndex];
+      if (trackTitle) trackTitle.textContent = t.title;
+      if (trackDetail) trackDetail.textContent = t.detail;
+      if (t.src && audio) {
+        audio.src = t.src;
+        audio.playbackRate = speeds[speedIdx];
+      }
+      resetABLoop();
+
+      trackItems.forEach((item, idx) => {
+        item.classList.toggle('bg-neutral-800/80', idx === currentIndex);
+        item.classList.toggle('border-orange-500/35', idx === currentIndex);
+      });
+
+      if (isPlaying && t.src && audio) audio.play().catch(() => {});
+    }
+
+    function togglePlay() {
+      if (!audio || !audio.src) return;
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        audio.play().then(() => {
+          isPlaying = true;
+          updatePlayIcon();
+        }).catch((err) => console.warn(err));
+      }
+    }
+
+    function updatePlayIcon() {
+      if (!playIcon) return;
+      playIcon.innerHTML = isPlaying ? 
+        '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>' : 
+        '<path d="M8 5v14l11-7z"></path>';
+    }
+
+    if (audio) {
+      audio.addEventListener('play', () => { isPlaying = true; updatePlayIcon(); });
+      audio.addEventListener('pause', () => { isPlaying = false; updatePlayIcon(); });
+      audio.addEventListener('timeupdate', () => {
+        if (loopA !== null && loopB !== null && audio.currentTime >= loopB) {
+          audio.currentTime = loopA;
+        }
+        if (audio.duration && seekBar && currentTimeEl && durationEl) {
+          seekBar.value = (audio.currentTime / audio.duration) * 100;
+          currentTimeEl.textContent = formatTime(audio.currentTime);
+          durationEl.textContent = formatTime(audio.duration);
+        }
+      });
+    }
+
+    trackItems.forEach(item => {
+      item.addEventListener('click', () => {
+        loadTrack(parseInt(item.dataset.index));
+        if (tracks[currentIndex].src && audio) audio.play();
+      });
+    });
+
+    if (playBtn) playBtn.addEventListener('click', togglePlay);
+    if (prevBtn) prevBtn.addEventListener('click', () => { loadTrack((currentIndex - 1 + tracks.length) % tracks.length); if (tracks[currentIndex].src && audio) audio.play(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { loadTrack((currentIndex + 1) % tracks.length); if (tracks[currentIndex].src && audio) audio.play(); });
+
+    if (speedBtn) {
+      speedBtn.addEventListener('click', () => {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        speedBtn.textContent = speeds[speedIdx].toFixed(1) + 'x';
+        if (audio) audio.playbackRate = speeds[speedIdx];
+      });
+    }
+
+    function handleABLoop() {
+      if (!audio) return;
+      if (loopA === null) {
+        loopA = audio.currentTime;
+        if (abLoopBtn) {
+          abLoopBtn.textContent = 'A-';
+          abLoopBtn.classList.add('text-orange-400', 'border-orange-500/50');
+        }
+      } else if (loopB === null) {
+        loopB = audio.currentTime;
+        if (loopB <= loopA) resetABLoop();
+        else if (abLoopBtn) abLoopBtn.textContent = 'A-B';
+      } else {
+        resetABLoop();
+      }
+    }
+
+    function resetABLoop() {
+      loopA = null;
+      loopB = null;
+      if (abLoopBtn) {
+        abLoopBtn.textContent = 'A-B';
+        abLoopBtn.classList.remove('text-orange-400', 'border-orange-500/50');
+      }
+    }
+
+    if (abLoopBtn) abLoopBtn.addEventListener('click', handleABLoop);
+    if (seekBar) seekBar.addEventListener('input', () => { if (audio && audio.duration) audio.currentTime = (seekBar.value / 100) * audio.duration; });
+    if (volBar) volBar.addEventListener('input', (e) => { if (audio) audio.volume = e.target.value; });
+
+    function formatTime(s) {
+      const min = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    // ------------------------------------------------------------------
+    // SPELLING TESTER LOGIC & HIGH-QUALITY TTS
+    // ------------------------------------------------------------------
+    let activeLevelKey = 'level1';
+    let currentList = [...spellingLists.level1.words];
+    let testWordIdx = 0;
+    let testScoreCount = 0;
+    let customTtsRate = 0.85;
+
+    const testLevel1Btn = document.getElementById('testLevel1Btn');
+    const testLevel2Btn = document.getElementById('testLevel2Btn');
+    const testLevel3Btn = document.getElementById('testLevel3Btn');
+    const testCategoryTitle = document.getElementById('testCategoryTitle');
+    const testScore = document.getElementById('testScore');
+    const currentWordNum = document.getElementById('currentWordNum');
+    const hiddenWordHint = document.getElementById('hiddenWordHint');
+    const wordInput = document.getElementById('wordInput');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const submitWordBtn = document.getElementById('submitWordBtn');
+    const skipWordBtn = document.getElementById('skipWordBtn');
+    const speakWordBtn = document.getElementById('speakWordBtn');
+
+    function pronounceCurrentWord() {
+      const wordToSpeak = currentList[testWordIdx];
+      if (!wordToSpeak) return;
+
+      const googleAudio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(wordToSpeak)}&tl=en-GB&client=tw-ob`);
+      googleAudio.playbackRate = customTtsRate;
+      
+      googleAudio.play().catch(() => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(wordToSpeak);
+          utterance.rate = customTtsRate;
+          utterance.lang = 'en-GB';
+          window.speechSynthesis.speak(utterance);
+        }
+      });
+    }
+
+    if (speakWordBtn) speakWordBtn.addEventListener('click', pronounceCurrentWord);
+
+    function setTestLevel(key) {
+      activeLevelKey = key;
+      currentList = [...spellingLists[key].words];
+      testWordIdx = 0;
+      testScoreCount = 0;
+
+      if (testLevel1Btn) testLevel1Btn.className = key === 'level1' ? 'py-2 px-1 text-xs font-bold rounded-xl bg-orange-600 text-white transition shadow-md' : 'py-2 px-1 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition';
+      if (testLevel2Btn) testLevel2Btn.className = key === 'level2' ? 'py-2 px-1 text-xs font-bold rounded-xl bg-orange-600 text-white transition shadow-md' : 'py-2 px-1 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition';
+      if (testLevel3Btn) testLevel3Btn.className = key === 'level3' ? 'py-2 px-1 text-xs font-bold rounded-xl bg-orange-600 text-white transition shadow-md' : 'py-2 px-1 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition';
+
+      if (testCategoryTitle) testCategoryTitle.textContent = spellingLists[key].name;
+      updateTestUI();
+      if (toolTest && !toolTest.classList.contains('hidden')) {
+        pronounceCurrentWord();
+      }
+    }
+
+    if (testLevel1Btn) testLevel1Btn.addEventListener('click', () => setTestLevel('level1'));
+    if (testLevel2Btn) testLevel2Btn.addEventListener('click', () => setTestLevel('level2'));
+    if (testLevel3Btn) testLevel3Btn.addEventListener('click', () => setTestLevel('level3'));
+
+    function updateTestUI() {
+      if (currentWordNum) currentWordNum.textContent = testWordIdx + 1;
+      if (testScore) testScore.textContent = `${testScoreCount} / ${currentList.length}`;
+      if (wordInput) wordInput.value = '';
+      if (feedbackBox) feedbackBox.classList.add('opacity-0');
+      if (hiddenWordHint) hiddenWordHint.textContent = currentList[testWordIdx] || '';
+    }
+
+    function checkSpelling() {
+      if (!wordInput) return;
+      const val = wordInput.value.trim().toLowerCase();
+      const target = (currentList[testWordIdx] || '').trim().toLowerCase();
+      if (!target) return;
+
+      if (val === target) {
+        testScoreCount++;
+        showFeedback('Correct Spelling!', 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30');
+        setTimeout(() => {
+          testWordIdx = (testWordIdx + 1) % currentList.length;
+          updateTestUI();
+          pronounceCurrentWord();
+        }, 900);
+      } else {
+        showFeedback(`Incorrect. Correct: "${target}"`, 'bg-red-500/20 text-red-400 border border-red-500/30');
+      }
+    }
+
+    function showFeedback(msg, styleClass) {
+      if (!feedbackBox) return;
+      feedbackBox.textContent = msg;
+      feedbackBox.className = `min-h-[36px] flex items-center justify-center p-1.5 rounded-xl text-center text-xs font-medium transition opacity-100 ${styleClass}`;
+    }
+
+    if (submitWordBtn) submitWordBtn.addEventListener('click', checkSpelling);
+    if (wordInput) wordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkSpelling(); });
+    if (skipWordBtn) skipWordBtn.addEventListener('click', () => {
+      testWordIdx = (testWordIdx + 1) % currentList.length;
+      updateTestUI();
+      pronounceCurrentWord();
+      if (wordInput) wordInput.focus();
+    });
+
+    // ------------------------------------------------------------------
+    // BACKGROUND STARFIELD ANIMATION
+    // ------------------------------------------------------------------
+    const starCanvas = document.getElementById('starCanvas');
+    const sCtx = starCanvas ? starCanvas.getContext('2d') : null;
+    let stars = [];
+
+    function initStars() {
+      if (!starCanvas) return;
+      starCanvas.width = window.innerWidth;
+      starCanvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 60; i++) {
+        stars.push({
+          x: Math.random() * starCanvas.width,
+          y: Math.random() * starCanvas.height,
+          radius: Math.random() * 1.2 + 0.3,
+          alpha: Math.random() * 0.7 + 0.3,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15
+        });
+      }
+    }
+    initStars();
+    window.addEventListener('resize', initStars);
+
+    function renderStars() {
+      if (!sCtx || !starCanvas) return;
+      sCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+      
+      stars.forEach(star => {
+        star.x += star.vx;
+        star.y += star.vy;
+
+        if (star.x < 0) star.x = starCanvas.width;
+        if (star.x > starCanvas.width) star.x = 0;
+        if (star.y < 0) star.y = starCanvas.height;
+        if (star.y > starCanvas.height) star.y = 0;
+
+        sCtx.beginPath();
+        sCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        sCtx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        sCtx.fill();
+      });
+
+      requestAnimationFrame(renderStars);
+    }
+    if (sCtx) renderStars();
+
+    // ------------------------------------------------------------------
+    // KEYBOARD SHORTCUTS
+    // ------------------------------------------------------------------
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'AltRight' || (e.key === 'Alt' && e.location === 2)) {
+        e.preventDefault();
+        pronounceCurrentWord();
+        return;
+      }
+
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
+
+      switch (e.code) {
+        case 'Space': togglePlay(); break;
+        case 'ArrowLeft': if (audio) audio.currentTime = Math.max(0, audio.currentTime - 5); break;
+        case 'ArrowRight': if (audio) audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5); break;
+        case 'ArrowUp': if (audio && volBar) { audio.volume = Math.min(1, audio.volume + 0.1); volBar.value = audio.volume; } break;
+        case 'ArrowDown': if (audio && volBar) { audio.volume = Math.max(0, audio.volume - 0.1); volBar.value = audio.volume; } break;
+        case 'KeyS': if (speedBtn) speedBtn.click(); break;
+        case 'KeyM': if (audio) audio.muted = !audio.muted; break;
+      }
+    });
+
+    // ------------------------------------------------------------------
+    // SETTINGS MODAL DIALOG
+    // ------------------------------------------------------------------
+    const openSettingsBtn = document.getElementById('openSettingsBtn');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const saveCloseSettingsBtn = document.getElementById('saveCloseSettingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsBox = document.getElementById('settingsBox');
+    const mainHeader = document.getElementById('mainHeader');
+    const mainWorkspace = document.getElementById('mainWorkspace');
+    const mainFooter = document.getElementById('mainFooter');
+    const ttsSpeedSelect = document.getElementById('ttsSpeedSelect');
+
+    function openSettings() {
+      if (!settingsModal || !settingsBox) return;
+      settingsModal.classList.remove('pointer-events-none');
+      settingsModal.classList.remove('opacity-0');
+      settingsBox.classList.remove('scale-95');
+      settingsBox.classList.add('scale-100');
+      if (mainHeader) mainHeader.classList.add('app-blurred');
+      if (mainWorkspace) mainWorkspace.classList.add('app-blurred');
+      if (mainFooter) mainFooter.classList.add('app-blurred');
+    }
+
+    function closeSettings() {
+      if (!settingsModal || !settingsBox) return;
+      settingsModal.classList.add('opacity-0');
+      settingsModal.classList.add('pointer-events-none');
+      settingsBox.classList.remove('scale-100');
+      settingsBox.classList.add('scale-95');
+      if (mainHeader) mainHeader.classList.remove('app-blurred');
+      if (mainWorkspace) mainWorkspace.classList.remove('app-blurred');
+      if (mainFooter) mainFooter.classList.remove('app-blurred');
+    }
+
+    if (openSettingsBtn) openSettingsBtn.addEventListener('click', openSettings);
+    if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettings);
+    if (saveCloseSettingsBtn) saveCloseSettingsBtn.addEventListener('click', closeSettings);
+    if (ttsSpeedSelect) {
+      ttsSpeedSelect.addEventListener('change', (e) => {
+        customTtsRate = parseFloat(e.target.value);
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // ON LOAD INITIALIZATION
+    // ------------------------------------------------------------------
+    loadTrack(0);
+    setTestLevel('level1');
+    switchTab('player');
+  </script>
+</body>
+</html>
